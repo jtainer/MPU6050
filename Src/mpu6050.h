@@ -5,6 +5,8 @@
  *      Author: Bulanov Konstantin
  */
 
+// Modified by Jonathan Tainer 2023
+
 #ifndef INC_GY521_H_
 #define INC_GY521_H_
 
@@ -12,6 +14,7 @@
 
 #include <stdint.h>
 #include "i2c.h"
+#include "linalg.h"
 
 // MPU6050 structure
 typedef struct
@@ -33,8 +36,7 @@ typedef struct
 
     float Temperature;
 
-    double KalmanAngleX;
-    double KalmanAngleY;
+    vec4 rotation;
 } MPU6050_t;
 
 // Kalman structure

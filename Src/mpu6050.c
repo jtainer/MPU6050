@@ -31,6 +31,8 @@
  * |---------------------------------------------------------------------------------
  */
 
+// Modified by Jonathan Tainer 2023
+
 #include <math.h>
 #include "mpu6050.h"
 
@@ -178,10 +180,19 @@ void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     DataStruct->Gy = DataStruct->Gyro_Y_RAW / 131.0;
     DataStruct->Gz = DataStruct->Gyro_Z_RAW / 131.0;
 
-    // Kalman angle solve
-    double dt = (double)(HAL_GetTick() - timer) / 1000;
+
+    // Get quaternion rotation
+    double dt = (float)(HAL_GetTick() - timer) / 1000;
     timer = HAL_GetTick();
-    double roll;
+    vec4 Sw = { 0, DataStruct->Gx, DataStruct->Gy, DataStruct->Gz };
+    Qdot = quaternion_scale(DataStruct->rotation, 0.5f);
+    Qdot = quaternion_multiply(Qdot, Sw);
+    vec4 Q = quaternion_scale(Qdot, dt);
+    DataStruct->rotation = quaternion_add(DataStruct->rotation, Q);
+    DataStruct->rotation = quaternion_normalize(DataStruct->rotation);
+
+    // Kalman angle solve
+/*    double roll;
     double roll_sqrt = sqrt(
         DataStruct->Accel_X_RAW * DataStruct->Accel_X_RAW + DataStruct->Accel_Z_RAW * DataStruct->Accel_Z_RAW);
     if (roll_sqrt != 0.0)
@@ -205,6 +216,7 @@ void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     if (fabs(DataStruct->KalmanAngleY) > 90)
         DataStruct->Gx = -DataStruct->Gx;
     DataStruct->KalmanAngleX = Kalman_getAngle(&KalmanX, roll, DataStruct->Gx, dt);
+*/
 }
 
 double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt)
