@@ -43,4 +43,15 @@ vec4 quaternion_normalize(vec4 a) {
 	return quaternion_scale(a, inv_len);
 }
 
+vec4 quaternion_conjugate(vec4 a) {
+	return (vec4) { a.w, -a.x, -a.y, -a.z };
+}
+
+vec4 quaternion_inverse(vec4 a) {
+	float norm = quaternion_length(a);
+	float scale = 1.f / (norm*norm);
+	vec4 conj = quaternion_conjugate(a);
+	return quaternion_scale(conj, scale);
+}
+
 #endif
