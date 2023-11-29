@@ -182,7 +182,7 @@ void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     // Convert degrees to radians
     DataStruct->Gx *= M_PI/180.f;
     DataStruct->Gy *= M_PI/180.f;
-    Datastruct->Gz *= M_PI/180.f;
+    DataStruct->Gz *= M_PI/180.f;
 
 
     // Gyroscope rotation
@@ -199,8 +199,8 @@ void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     vec3 grav = { DataStruct->Ax, DataStruct->Ay, DataStruct->Az };
     vec3 azim = { 0.f, 0.f, 1.f };
     vec4 Qgrav = quaternion_rotation(azim, grav);
-    Vec4 Q0 = quaternion_scale(DataStruct->rotation, 0.9f);
-    Vec4 Q1 = quaternion_scale(DataStruct->rotation, 0.1f);
+    vec4 Q0 = quaternion_scale(DataStruct->rotation, 0.9f);
+    vec4 Q1 = quaternion_scale(DataStruct->rotation, 0.1f);
     DataStruct->rotation = quaternion_add(Q0, Q1);
 }
 

@@ -52,7 +52,7 @@ float vector3_dot(vec3 a, vec3 b) {
 	return a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
-vec3 vector3_cross(vec3 a, vec4 b) {
+vec3 vector3_cross(vec3 a, vec3 b) {
 	return (vec3) { a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-a.y*b.x };
 }
 
@@ -60,7 +60,7 @@ vec4 quaternion_rotation(vec3 from, vec3 to) {
     vec4 result = { 0 };
 
     float dot = vector3_dot(from, to);
-    Vector3 cross = vector3_cross(from, to);
+    vec3 cross = vector3_cross(from, to);
 
     result.x = cross.x;
     result.y = cross.y;
