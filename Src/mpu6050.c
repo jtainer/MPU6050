@@ -179,6 +179,10 @@ void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     DataStruct->Gx = DataStruct->Gyro_X_RAW / 131.0;
     DataStruct->Gy = DataStruct->Gyro_Y_RAW / 131.0;
     DataStruct->Gz = DataStruct->Gyro_Z_RAW / 131.0;
+    // Convert degrees to radians
+    DataStruct->Gx *= M_PI/180.f;
+    DataStruct->Gy *= M_PI/180.f;
+    Datastruct->Gz *= M_PI/180.f;
 
 
     // Get quaternion rotation
