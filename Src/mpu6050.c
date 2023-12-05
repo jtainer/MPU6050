@@ -184,7 +184,7 @@ void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     DataStruct->Gy *= M_PI/180.f;
     DataStruct->Gz *= M_PI/180.f;
 
-
+/*
     // Gyroscope rotation
     double dt = (float)(HAL_GetTick() - timer) / 1000;
     timer = HAL_GetTick();
@@ -194,6 +194,16 @@ void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     vec4 Q = quaternion_scale(Qdot, dt);
     DataStruct->rotation = quaternion_add(DataStruct->rotation, Q);
     DataStruct->rotation = quaternion_normalize(DataStruct->rotation);
+*/
+
+    // Testing different gyro integration method
+    double dt = (float)(HAL_GetTick() - timer) / 1000.f;
+    timer = HAL_GetTick();
+    vec3 omega = { DataStruct->Gx, DataStruct->Gy, DataStruct->Gz };
+    float theta = vec3_length(omega) * dt;
+    vec3 v = vec3_normalize(omega);
+    vec4 update = { cosf(theta/2), v.x*sin(theta/2), v.y*sin(theta/2), v.z*sin(theta/2) };
+    DataStruct->rotation = vec4_multiply(update, DataStruct->rotation);
 
 /*
     // Accelerometer rotation
