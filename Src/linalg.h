@@ -39,7 +39,7 @@ vec3 vec3_subtract(vec3 a, vec3 b);
 
 vec3 vec3_scale(vec3 a, float scale);
 
-float vec3 length(vec3 a);
+float vec3_length(vec3 a);
 
 vec3 vec3_normalize(vec3 a);
 
