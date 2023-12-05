@@ -43,8 +43,8 @@ float vec3 length(vec3 a);
 
 vec3 vec3_normalize(vec3 a);
 
-float vector3_dot(vec3 a, vec3 b);
+float vec3_dot(vec3 a, vec3 b);
 
-vec3 vector3_cross(vec3 a, vec3 b);
+vec3 vec3_cross(vec3 a, vec3 b);
 
 #endif
