@@ -33,7 +33,7 @@ float vec4_length(vec4 a) {
 }
 
 vec4 vec4_normalize(vec4 a) {
-	float inv_len = 1.f / quaternion_length(a);
+	float inv_len = 1.f / vec4_length(a);
 	return vec4_scale(a, inv_len);
 }
 
