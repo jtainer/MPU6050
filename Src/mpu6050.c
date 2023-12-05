@@ -184,36 +184,17 @@ void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     DataStruct->Gy *= M_PI/180.f;
     DataStruct->Gz *= M_PI/180.f;
 
-/*
-    // Gyroscope rotation
-    double dt = (float)(HAL_GetTick() - timer) / 1000;
-    timer = HAL_GetTick();
-    vec4 Sw = { 0, DataStruct->Gx, DataStruct->Gy, DataStruct->Gz };
-    vec4 Qtmp = quaternion_scale(DataStruct->rotation, 0.5f);
-    vec4 Qdot = quaternion_multiply(Qtmp, Sw);
-    vec4 Q = quaternion_scale(Qdot, dt);
-    DataStruct->rotation = quaternion_add(DataStruct->rotation, Q);
-    DataStruct->rotation = quaternion_normalize(DataStruct->rotation);
-*/
-
     // Testing different gyro integration method
     double dt = (float)(HAL_GetTick() - timer) / 1000.f;
     timer = HAL_GetTick();
     vec3 omega = { DataStruct->Gx, DataStruct->Gy, DataStruct->Gz };
     float theta = vec3_length(omega) * dt;
+    float c = cosf(theta / 2.f);
+    float s = sinf(theta / 2.f);
     vec3 v = vec3_normalize(omega);
-    vec4 update = { cosf(theta/2), v.x*sin(theta/2), v.y*sin(theta/2), v.z*sin(theta/2) };
+    vec4 update = { c, v.x*s, v.y*s, v.z*s };
     DataStruct->rotation = vec4_multiply(update, DataStruct->rotation);
 
-/*
-    // Accelerometer rotation
-    vec3 grav = { DataStruct->Ax, DataStruct->Ay, DataStruct->Az };
-    vec3 azim = { 0.f, 0.f, 1.f };
-    vec4 Qgrav = quaternion_rotation(azim, grav);
-    vec4 Q0 = quaternion_scale(DataStruct->rotation, 0.9f);
-    vec4 Q1 = quaternion_scale(Qgrav, 0.1f);
-    DataStruct->rotation = quaternion_add(Q0, Q1);
-*/
 }
 
 double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt)
