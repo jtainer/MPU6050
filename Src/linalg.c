@@ -42,7 +42,7 @@ vec4 vec4_conjugate(vec4 a) {
 }
 
 vec4 vec4_inverse(vec4 a) {
-	float norm = quaternion_length(a);
+	float norm = vec4_length(a);
 	float scale = 1.f / (norm*norm);
 	vec4 conj = vec4_conjugate(a);
 	return vec4_scale(conj, scale);
