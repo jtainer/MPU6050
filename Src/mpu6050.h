@@ -10,7 +10,7 @@
 #ifndef INC_GY521_H_
 #define INC_GY521_H_
 
-#endif /* INC_GY521_H_ */
+#endif
 
 #include <stdint.h>
 #include "i2c.h"
@@ -37,18 +37,9 @@ typedef struct
     float Temperature;
 
     vec4 rotation;
-} MPU6050_t;
 
-// Kalman structure
-typedef struct
-{
-    double Q_angle;
-    double Q_bias;
-    double R_measure;
-    double angle;
-    double bias;
-    double P[2][2];
-} Kalman_t;
+    uint32_t timer;
+} MPU6050_t;
 
 uint8_t MPU6050_Init(I2C_HandleTypeDef *I2Cx);
 
@@ -60,4 +51,3 @@ void MPU6050_Read_Temp(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct);
 
 void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct);
 
-double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt);

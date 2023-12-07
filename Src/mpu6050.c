@@ -52,19 +52,6 @@
 const uint16_t i2c_timeout = 100;
 const double Accel_Z_corrector = 14418.0;
 
-uint32_t timer;
-
-Kalman_t KalmanX = {
-    .Q_angle = 0.001f,
-    .Q_bias = 0.003f,
-    .R_measure = 0.03f};
-
-Kalman_t KalmanY = {
-    .Q_angle = 0.001f,
-    .Q_bias = 0.003f,
-    .R_measure = 0.03f,
-};
-
 uint8_t MPU6050_Init(I2C_HandleTypeDef *I2Cx)
 {
     uint8_t check;
@@ -155,14 +142,17 @@ void MPU6050_Read_Temp(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     DataStruct->Temperature = (float)((int16_t)temp / (float)340.0 + (float)36.53);
 }
 
-void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
+int MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
 {
     uint8_t Rec_Data[14];
     int16_t temp;
 
     // Read 14 BYTES of data starting from ACCEL_XOUT_H register
 
-    HAL_I2C_Mem_Read(I2Cx, MPU6050_ADDR, ACCEL_XOUT_H_REG, 1, Rec_Data, 14, i2c_timeout);
+    HAL_StatusTypeDef res;
+    res = HAL_I2C_Mem_Read(I2Cx, MPU6050_ADDR, ACCEL_XOUT_H_REG, 1, Rec_Data, 14, i2c_timeout);
+    if (res != HAL_OK)
+        return 1;
 
     DataStruct->Accel_X_RAW = (int16_t)(Rec_Data[0] << 8 | Rec_Data[1]);
     DataStruct->Accel_Y_RAW = (int16_t)(Rec_Data[2] << 8 | Rec_Data[3]);
@@ -179,14 +169,15 @@ void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     DataStruct->Gx = DataStruct->Gyro_X_RAW / 131.0;
     DataStruct->Gy = DataStruct->Gyro_Y_RAW / 131.0;
     DataStruct->Gz = DataStruct->Gyro_Z_RAW / 131.0;
+
     // Convert degrees to radians
     DataStruct->Gx *= M_PI/180.f;
     DataStruct->Gy *= M_PI/180.f;
     DataStruct->Gz *= M_PI/180.f;
 
     // Testing different gyro integration method
-    double dt = (float)(HAL_GetTick() - timer) / 1000.f;
-    timer = HAL_GetTick();
+    double dt = (float)(HAL_GetTick() - DataStruct->timer) / 1000.f;
+    DataStruct->timer = HAL_GetTick();
     vec3 omega = { DataStruct->Gx, DataStruct->Gy, DataStruct->Gz };
     float theta = vec3_length(omega) * dt;
     float c = cosf(theta / 2.f);
@@ -194,35 +185,6 @@ void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     vec3 v = vec3_normalize(omega);
     vec4 update = { c, v.x*s, v.y*s, v.z*s };
     DataStruct->rotation = vec4_multiply(update, DataStruct->rotation);
-
+    
+    return 0;
 }
-
-double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt)
-{
-    double rate = newRate - Kalman->bias;
-    Kalman->angle += dt * rate;
-
-    Kalman->P[0][0] += dt * (dt * Kalman->P[1][1] - Kalman->P[0][1] - Kalman->P[1][0] + Kalman->Q_angle);
-    Kalman->P[0][1] -= dt * Kalman->P[1][1];
-    Kalman->P[1][0] -= dt * Kalman->P[1][1];
-    Kalman->P[1][1] += Kalman->Q_bias * dt;
-
-    double S = Kalman->P[0][0] + Kalman->R_measure;
-    double K[2];
-    K[0] = Kalman->P[0][0] / S;
-    K[1] = Kalman->P[1][0] / S;
-
-    double y = newAngle - Kalman->angle;
-    Kalman->angle += K[0] * y;
-    Kalman->bias += K[1] * y;
-
-    double P00_temp = Kalman->P[0][0];
-    double P01_temp = Kalman->P[0][1];
-
-    Kalman->P[0][0] -= K[0] * P00_temp;
-    Kalman->P[0][1] -= K[0] * P01_temp;
-    Kalman->P[1][0] -= K[1] * P00_temp;
-    Kalman->P[1][1] -= K[1] * P01_temp;
-
-    return Kalman->angle;
-};
