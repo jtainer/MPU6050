@@ -176,8 +176,9 @@ int MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct)
     DataStruct->Gz *= M_PI/180.f;
 
     // Testing different gyro integration method
-    double dt = (float)(HAL_GetTick() - DataStruct->timer) / 1000.f;
-    DataStruct->timer = HAL_GetTick();
+    uint32_t t = HAL_GetTick();
+    double dt = (float)(t - DataStruct->timer) / 1000.f;
+    DataStruct->timer = t;
     vec3 omega = { DataStruct->Gx, DataStruct->Gy, DataStruct->Gz };
     float theta = vec3_length(omega) * dt;
     float c = cosf(theta / 2.f);
