@@ -16,6 +16,17 @@
 #include "i2c.h"
 #include "linalg.h"
 
+// Kalman structure
+typedef struct
+{
+    double Q_angle;
+    double Q_bias;
+    double R_measure;
+    double angle;
+    double bias;
+    double P[2][2];
+} Kalman_t;
+
 // MPU6050 structure
 typedef struct
 {
