@@ -36,9 +36,13 @@ typedef struct
 
     float Temperature;
 
-    vec4 rotation;
+    double KalmanAngleX;
+    double KalmanAngleY;
 
     uint32_t timer;
+
+    Kalman_t KalmanX;
+    Kalman_t KalmanY;
 } MPU6050_t;
 
 uint8_t MPU6050_Init(I2C_HandleTypeDef *I2Cx);
@@ -51,3 +55,4 @@ void MPU6050_Read_Temp(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct);
 
 void MPU6050_Read_All(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct);
 
+double Kalman_getAngle(Kalman_t *Kalman, double newAngle, double newRate, double dt);
