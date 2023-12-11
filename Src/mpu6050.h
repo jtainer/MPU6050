@@ -56,7 +56,7 @@ typedef struct
     Kalman_t KalmanY;
 } MPU6050_t;
 
-uint8_t MPU6050_Init(I2C_HandleTypeDef *I2Cx);
+uint8_t MPU6050_Init(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct);
 
 void MPU6050_Read_Accel(I2C_HandleTypeDef *I2Cx, MPU6050_t *DataStruct);
 
